@@ -9,6 +9,8 @@ import "src/levels/VaultFactory.sol";
 contract TestVault is BaseTest {
     Vault private level;
 
+    using stdStorage for StdStorage;
+
     constructor() public {
         // SETUP LEVEL FACTORY
         levelFactory = new VaultFactory();
@@ -37,6 +39,10 @@ contract TestVault is BaseTest {
         /** CODE YOUR EXPLOIT HERE */
 
         vm.startPrank(player);
+
+        /// contract LeetContract {
+        ///     uint256 private leet = 1337; // slot 0
+        /// }
 
         // We can unlock the contract if we know the password that was used to lock it
         // Password is stored in the smart contract but it's visibility is private
