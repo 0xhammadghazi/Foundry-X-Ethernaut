@@ -9,6 +9,8 @@ import "src/levels/VaultFactory.sol";
 contract TestVault is BaseTest {
     Vault private level;
 
+    using stdStorage for StdStorage;
+
     constructor() public {
         // SETUP LEVEL FACTORY
         levelFactory = new VaultFactory();
@@ -28,6 +30,9 @@ contract TestVault is BaseTest {
 
         levelAddress = payable(this.createLevelInstance(true));
         level = Vault(levelAddress);
+
+        // Check that the contract is correctly setup
+        assertEq(level.locked(), true);
     }
 
     function exploitLevel() internal override {
@@ -35,19 +40,24 @@ contract TestVault is BaseTest {
 
         vm.startPrank(player);
 
-        // Since the Vault contract doesn't have a payable fn or a receive/ fallback fn
-        // the only way to send ether to it is by destroying a contract and sending all its ether balance
-        // to the Vault contract
+        /// contract LeetContract {
+        ///     uint256 private leet = 1337; // slot 0
+        /// }
 
-        // Selfdestruct destroys the contract and send all its ether balance to the target address
-        new Attacker{value: 1 wei}(level);
+        // We can unlock the contract if we know the password that was used to lock it
+        // Password is stored in the smart contract but it's visibility is private
+        // but nothing is really private in the blockchain, private visibility can only prevent
+        // other smart contracts to access it.
+
+        // We can read a variable of the smart contract off-chain
+        // directly from the storage slot even if it's visibility is set to private.
+
+        // Reading first index of the storage slot because password is stored in the second slot
+        bytes32 password = vm.load(address(level), bytes32(uint256(1)));
+        level.unlock(password);
+
+        assertEq(level.locked(), false);
 
         vm.stopPrank();
-    }
-}
-
-contract Attacker {
-    constructor(Vault _level) public payable {
-        selfdestruct(payable(address(_level)));
     }
 }
