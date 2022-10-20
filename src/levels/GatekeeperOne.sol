@@ -3,28 +3,17 @@ pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
-import "forge-std/console.sol";
-
 contract GatekeeperOne {
     using SafeMath for uint256;
     address public entrant;
 
     modifier gateOne() {
         require(msg.sender != tx.origin);
-        console.log("First");
         _;
     }
 
     modifier gateTwo() {
-        console.log("Gas left --> ", gasleft());
-        require(true);
-        console.log(gasleft());
-        console.log("How much left ", gasleft().mod(8191));
-
-        // mod 5
-        // == 3
-        require(gasleft().mod(8191) == 0, "no");
-        console.log("Second passed");
+        require(gasleft().mod(8191) == 0);
         _;
     }
 
