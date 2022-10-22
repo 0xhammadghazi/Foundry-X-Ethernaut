@@ -6,8 +6,6 @@ import "./utils/BaseTest.sol";
 import "src/levels/Motorbike.sol";
 import "src/levels/MotorbikeFactory.sol";
 
-import "forge-std/console.sol";
-
 contract TestMotorbike is BaseTest {
     Motorbike private level;
 
