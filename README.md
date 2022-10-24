@@ -1,32 +1,8 @@
-# Ethernaut CTF - Foundry edition
+# Ethernaut CTF solutions using foundry
 
-## What is Ethernaut by OpenZeppelin
+[My solutions](https://github.com/hammadghazi/Foundry-X-Ethernaut/tree/main/test) of [Ethernaut CTFs](https://ethernaut.openzeppelin.com/).
 
-[Ethernaut](https://github.com/OpenZeppelin/ethernaut) is a Web3/Solidity based war game inspired in [overthewire.org](https://overthewire.org/), to be played in the Ethereum Virtual Machine. Each level is a smart contract that needs to be 'hacked'.
 
-The game acts both as a tool for those interested in learning Ethereum, and as a way to catalog historical hacks in levels. Levels can be infinite, and the game does not require to be played in any particular order.
-
-Created by [OpenZeppelin](https://www.openzeppelin.com/)
-Visit [https://ethernaut.openzeppelin.com/](https://ethernaut.openzeppelin.com/)
-
-## Acknowledgements
-
-- Created by [OpenZeppelin](https://www.openzeppelin.com/)
-- [Ethernaut Website](https://ethernaut.openzeppelin.com/)
-- [Ethernaut GitHub](https://github.com/OpenZeppelin/ethernaut)
-- [Foundry](https://github.com/gakonst/foundry)
-- [Foundry Book](https://book.getfoundry.sh/)
-
-Thanks to everyone who had helped me during the making of this project!
-
-## Warnings - some solutions are missing!
-
-Ethernaut sometimes rely on old version of solidity to showcase bugs/exploits. Some of those challenges were throwing compilation errors because of solidity compiler incompatibility.
-
-These challenges are not part of the repository:
-
-- [Alien Codex](https://ethernaut.openzeppelin.com/level/0xda5b3Fb76C78b6EdEE6BE8F11a1c31EcfB02b272)
-- [Motorbike](https://ethernaut.openzeppelin.com/level/0x58Ab506795EC0D3bFAE4448122afa4cDE51cfdd2)
 
 ## How to play
 
@@ -42,15 +18,21 @@ curl -L https://foundry.paradigm.xyz | bash
 foundryup
 ```
 
-### Clone repo and install dependencies
+### Clone repo, install dependencies and build
 
 ```bash
-git clone git@github.com:StErMi/foundry-ethernaut.git
-cd foundry-ethernaut
-git submodule update --init --recursive
+git clone https://github.com/hammadghazi/Foundry-X-Ethernaut.git
+forge install
+forge build
 ```
 
-### Run a solution
+### Run all challenges
+
+```bash
+forge test -vv
+```
+
+### Run a specific challenge
 
 ```bash
 # example forge test --match-contract TestCoinFlip
@@ -128,10 +110,13 @@ What you need to do is to
 3. Implement the logic to solve the challenge inside `setupLevel` between `startPrank` and `stopPrank`
 4. Run the test!
 
-## Disclaimer
+## Acknowledgement
 
-All Solidity code, practices and patterns in this repository are DAMN VULNERABLE and for educational purposes only.
+- [Template Repo](https://github.com/StErMi/foundry-ethernaut)
 
-I **do not give any warranties** and **will not be liable for any loss** incurred through any use of this codebase.
+## Note
 
-**DO NOT USE IN PRODUCTION**.
+- [Alien Codex](https://ethernaut.openzeppelin.com/level/0xda5b3Fb76C78b6EdEE6BE8F11a1c31EcfB02b272) is not part of this repository.
+- [Motorbike](https://ethernaut.openzeppelin.com/level/0x58Ab506795EC0D3bFAE4448122afa4cDE51cfdd2) challenge test case can't be validated because of the way foundry test works.
+- [MagicNumber](https://ethernaut.openzeppelin.com/level/0xaCB258afa213Db8E0007459f5d3851c112d2fA8d) is not part of this repository.
+
